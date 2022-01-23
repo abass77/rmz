@@ -1,46 +1,49 @@
+import numpy as np
+from skimage import io
+from skimage.transform import rotate
+from skimage.color import rgb2gray
+from deskew import determine_skew
+import jsonpickle
 import cv2
-import imutils 
-from flatten_doc import doc_perspective_transform
-from skimage.filters import threshold_local
+from flask import Flask, request, Response
+
+app = Flask(__name__)
+
+# deskew image
+def deskew_image(image):
+    trace("Deskew_Image")
+    image = io.imread(image)
+    grayscale = rgb2gray(image)
+    angle = determine_skew(grayscale)
+    rotated = rotate(image, angle, resize=True) * 255
+    return rotated.astype(np.uint8)
 
 
-def converter(image):
-    
-    #Resizing
-    ratio = image.shape[0] / 720.
-    original = image.copy()
-    image = imutils.resize(image, height = 720)
-    
-    #Edge Detection Phase
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray = cv2.GaussianBlur(gray, (5, 5), 0)
-    edged = cv2.Canny(gray, 75, 200)
-    
-    #Finding largest contour in edged map
-    cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    cnts = imutils.grab_contours(cnts)
-    cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:5]
-    
-    for c in cnts:
-        
-        #Smoothening/approximating the contour
-        perimeter = cv2.arcLength(c, True)
-        approx = cv2.approxPolyDP(c, 0.02 * perimeter, True)
-        
-        if len(approx) == 4:
-            screenCnt = approx
-            break
-    
-    #Marking document outline
-    cv2.drawContours(image, [screenCnt], -1, (0, 255, 0), 2)
-    
-    #Changing perespective of image
-    warped_image = doc_perspective_transform(original, screenCnt.reshape(4, 2) * ratio)
-    warped_image = cv2.cvtColor(warped_image, cv2.COLOR_BGR2GRAY)
-    T = threshold_local(warped_image, 11, offset = 10, method = "gaussian")
-    warped_image = (warped_image > T).astype("uint8") * 255
-    
-    warped_image = imutils.resize(warped_image, height = 720)
-    warped_image = cv2.cvtColor(warped_image, cv2.COLOR_GRAY2BGR)
-    
-    return image, warped_image
+# Check
+@app.route('/check', methods=['GET'])
+def check():
+    output = {}
+    output['status'] = "Service running"
+    response_pickled = jsonpickle.encode(output)
+    return Response(response=response_pickled, status=200, mimetype="application/json")
+
+
+@app.route('/deskew', methods=['POST'])
+def deskew():
+    output = {}
+    # Get destination filename
+    targetfile = request.args.get("targetfile")
+    # Get binary file, convert string of image data to uint8 and decode image
+    data = request.data
+    nparr = np.frombuffer(data, np.uint8)
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    image_out = deskew_image(image)
+    cv2.imwrite(targetfile, image_out)
+    output['status'] = "Saved"
+    # Prepare response, encode JSON to return
+    response_pickled = jsonpickle.encode(output)
+    return Response(response=response_pickled, status=200, mimetype="application/json")
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='127.0.0.1', port=8090)

@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request
 
 # import our OCR function
-from detect import detect
+from Detect_Ocr import detect
 
 # define a folder to store and later serve the images
 UPLOAD_FOLDER = '/static/uploads/'
@@ -21,7 +21,6 @@ def allowed_file(filename):
 @app.route('/')
 def home_page():  
     return render_template('index.html')
-
 # route and function to handle the upload page
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_image():
@@ -43,7 +42,7 @@ def upload_image():
             return render_template('upload.html',
                                    msg='Successfully processed',
                                    extracted_text=extracted_text,
-                                   image=UPLOAD_FOLDER + file.filename)
+                                   image =UPLOAD_FOLDER + file.filename)
     elif request.method == 'GET':
         return render_template('upload.html')
 

@@ -6,85 +6,13 @@ import argparse
 import imutils
 import sys
 import cv2
-from fastapi import FastAPI
+import json
+import jsonpickle
+from flask import Flask, request, Response
 
 
 
-app = FastAPI()
-
-
-
-
-
-@app.get("/")
-def read_root():
-    return {mrz_list[0] : 'id_MRZ',
-            mrz_list_1[:6]: 'DateDeNaissance',
-            mrz_list_1[7]: 'Sexe',
-            mrz_list_1[8:14]:'DateExpitarion',
-            mrz_list_1[15:18]:'Pays',
-            mrz_list[3]: 'nom',
-            mrz_list[4]: 'Prenom'}
-
-
-@app.post("/")
-def read_root():
-    return {mrz_list[0] : 'id_MRZ',
-            mrz_list_1[:6]: 'DateDeNaissance',
-            mrz_list_1[7]: 'Sexe',
-            mrz_list_1[8:14]: 'DateExpitarion',
-            mrz_list_1[15:18]: 'Pays',
-            mrz_list[3]: 'nom',
-            mrz_list[4]: 'Prenom'}
-
-@app.put("/")
-def read_root():
-    return {mrz_list[0] : 'id_MRZ',
-            mrz_list_1[:6]: 'DateDeNaissance',
-            mrz_list_1[7]: 'Sexe',
-            mrz_list_1[8:14]: 'DateExpitarion',
-            mrz_list_1[15:18]: 'Pays',
-            mrz_list[3]: 'nom',
-            mrz_list[4]: 'Prenom'}
-
-
-
-
-#
-# db1 = mysql.connector.connect(
-# host="localhost",
-# user="root",
-# password="",
-# database="ecom_v2",
-# port=3306
-# )
-#
-#
-# request = "SELECT * FROM product"
-# curseur = db1.cursor()
-# curseur.execute(request)
-# products = curseur.fetchall()
-# print(type(products))
-# for p in products:
-#      print(p)
-
-
-
-
-
-pytesseract.pytesseract.tesseract_cmd = r'C:\Users\sheri\AppData\Local\Tesseract-OCR\tesseract.exe'
-#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
-# argument pour les lignes de commandes
-# ap = argparse.ArgumentParser()
-# ap.add_argument("-i", "--images", required=True, help="path to images directory")
-# args = vars(ap.parse_args())
-
-# load the input image, convert it to grayscale, and grab its
-# dimensions
-
-
-image = cv2.imread("test.jpeg")
+image = cv2.imread("Capture.PNG")
 image = cv2.resize(image, (1000, 450))
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 (H, W) = gray.shape
@@ -157,7 +85,10 @@ pY = int((y + h) * 0.03)
 # extract the padded MRZ from the image
 mrz = image[y:y + h, x:x + w]
 
-# OCR the MRZ region of interest using Tesseract, removing any
+
+
+# OCR the
+# MRZ region of interest using Tesseract, removing any
 # occurrences of spaces
 
 mrzText = pytesseract.image_to_string(mrz)
