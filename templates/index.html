@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+#fast api
+#flask
+#diango
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+	<script
+  src="https://code.jquery.com/jquery-1.12.4.min.js"
+  integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+  crossorigin="anonymous"></script>
+    <link href="./static/style.css" type="text/css" rel="styleSheet" />
+    <script>
+        var inputs = document.querySelectorAll('.inputfile');
+        Array.prototype.forEach.call(inputs, function (input) {
+            var label = input.nextElementSibling,
+                labelVal = label.innerHTML;
+
+            input.addEventListener('change', function (e) {
+                var fileName = '';
+                if (this.files && this.files.length > 1)
+                    fileName = (this.getAttribute('data-multiple-caption') || '').replace('{count}', this.files.length);
+                else
+                    //fileName = e.target.value.split('\' ).pop();
+
+		if (fileName)
+                    label.querySelector('span').innerHTML = fileName;
+                else
+                    label.innerHTML = labelVal;
+            });
+        });
+    </script>
+    <script>
+	
+		var response;
+		
+        function showOn() {
+			
+			document.getElementById("overlay").style.display = "block";
+			
+			//get the input and the file
+			var input = document.querySelector('input[type=file]');
+			file = input.files[0];
+			//Creates the FormData object and attach to a key name "file"
+			var fd = new FormData();
+			fd.append("file", file);
+
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "http://127.0.0.1:5000/uploaderRestForm",true);
+			//xhr.setRequestHeader('Content-type', 'multipart/form-data');
+			xhr.onloadend = function(e) {
+				//The response of de upload
+				console.log("successfull in callback------------------");
+				response = JSON.parse(xhr.responseText);
+				
+				document.getElementById("resultRegion").style.display = "block";
+				document.getElementById("lblName").innerHTML=response.names;
+				document.getElementById("lblCountry").innerHTML=response.country;
+				
+				var _exp=response.expiration_date;
+				var expNewFormat=_exp.replace(/(\d\d)(\d\d)(\d\d)/,'$3/$2/$1');
+				document.getElementById("lblExp").innerHTML=expNewFormat;				
+				
+				var _dob=response.date_of_birth;
+				var dobNewFormat=_dob.replace(/(\d\d)(\d\d)(\d\d)/,'$3/$2/$1');
+				document.getElementById("lblDOB").innerHTML=dobNewFormat;
+				
+				document.getElementById("lblPN").innerHTML=response.number;
+				
+				document.getElementById("overlay").style.display = "none";
+			}
+			xhr.send(fd);
+	
+            
+			
+        }
+
+        function off() {
+            document.getElementById("overlay").style.display = "none";
+			
+        }
+		
+		function resetResult(){
+			document.getElementById("resultRegion").style.display = "none";
+		}
+		
+		
+		function readURL(input) {
+		
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#imgholder')
+                        .attr('src', e.target.result);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+    </script>
+	<style>
+	#resultRegion{
+		display: none;
+    
+	}
+	</style
+</head>
+
+<body>
+
+    <div id="overlay" onclick="off()">
+        <img src="./static/images/loadingspinner.gif" width="10%">
+    </div>
+    <div class="banner">
+        <div class="header">
+            <div class="contentarea">
+                ID Reader
+            </div>
+        </div>
+    </div>
+    <div class="contentarea">
+        <div class="contentpanel">
+            <div class="fiftypercent">
+                <h3 class="sectionHeading">Upload your document</h3>
+                <p class="pInfo">Select your KYC document below and click on upload option.</p>
+                <form enctype = "multipart/form-data">
+                    <input type="file" name="file" id="file" onclick="resetResult()" onchange="readURL(this);" class="inputfile inputfile-1" data-multiple-caption="{count} files selected"
+                        />
+                    <label for="file"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewBox="0 0 20 17">
+                            <path d="M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z" /></svg>
+                        <span>Choose a file&hellip;</span></label>
+                    <button class="btn" type="button" onClick="showOn()">Upload</button>
+                </form>
+            </div>
+			
+            <div class="fiftypercent">
+                <h3 class="sectionHeading">Help</h3>
+                <p class="pInfo">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+                    et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                    aliquip ex ea commodo consequat.
+                </p>
+            </div>
+			<div id="resultRegion">
+			<div class="fiftypercent">
+                <h3 class="sectionHeading">Verify your details</h3>
+                <img id="imgholder" src="./images/passport.jpg" style="width:100%;">
+            </div>
+            <div class="fiftypercent">
+                <h3 class="sectionHeading">&nbsp;</h3>
+                <label>Name:</label><br>
+                <label class="value" id="lblName" contenteditable="true">Jhon Doe</label>
+				
+				<div class="spacer"></div>
+				<label>Country:</label><br>
+                <label class="value" id="lblCountry" contenteditable="true"></label>
+                
+                <div class="spacer"></div>
+                <label>Date of birth:</label><br>
+                <label class="value" id="lblDOB" contenteditable="true">31/05/1980</label>
+				
+				<div class="spacer"></div>
+				<label>Expiry:</label><br>
+                <label class="value" id="lblExp" contenteditable="true"></label>
+
+                <div class="spacer"></div>
+                <label>Passport Number</label><br>
+                <label class="value" id="lblPN" contenteditable="true">KZ12345678</label>
+            </div>
+			</div>
+        </div>
+    </div>
+	{% block body %}
+
+    {% endblock %}
+    <script src="/static/js/custom-file-input.js"></script>
+</body>
+
+</html>

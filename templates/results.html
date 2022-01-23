@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="./static/style.css" type="text/css" rel="styleSheet" />
+</head>
+
+<body>
+    <div class="banner">
+        <div class="header">
+            <div class="contentarea">
+                ID Reader
+            </div>
+        </div>
+    </div>
+    <div class="contentarea">
+        <div class="contentpanel">
+		{% block body %}
+            <div class="fiftypercent">
+                <h3 class="sectionHeading">Verify your details</h3>
+                <img src=./static/images/{{the_filename}} style="width: 100%;">
+            </div>
+            
+   <div class="fiftypercent">
+                <h3 class="sectionHeading">&nbsp;</h3>
+                <label>Name:</label><br>
+                <label class="value">{{the_name}}</label>
+                
+                <div class="spacer"></div>
+                <label>Date of birth:</label><br>
+                <label class="value">{{the_DOB}}</label>
+
+                <div class="spacer"></div>
+                <label>Passport Number</label><br>
+                <label class="value">{{the_PassportNumber}}</label>
+            </div>
+    {% endblock %}
+        </div>
+    </div>
+	
+</body>
+
+</html>
